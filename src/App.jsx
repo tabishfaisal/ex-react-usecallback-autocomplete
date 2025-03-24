@@ -12,6 +12,7 @@ function debounce(callback, delay) {
 const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [clickedProduct,setClickedProduct] = useState(null);
 
   // Memoized debounced search function
   const debouncedSearch = useCallback(
@@ -31,6 +32,18 @@ const App = () => {
     debouncedSearch(value);
   };
 
+  // Handle clicked Product
+  const handleClick = (id) =>{
+    fetch(`https://boolean-spec-frontend.vercel.app/freetestapi/products/${id}`)
+    .then(res => res.json())
+    .then(data => {
+      setClickedProduct(data);
+      setSearchTerm('');
+      setSuggestions([]);
+    })
+    .catch(error => console.error(error))
+  }
+
   return (
     <div>
       <input
@@ -42,8 +55,16 @@ const App = () => {
       {suggestions.length > 0 && (
         <div>
           {suggestions.map((s, i) => (
-            <p key={i}>{s.name}</p>
+            <p key={i} onClick={()=>handleClick(s.id)}>{s.name}</p>
           ))}
+        </div>
+      )}
+     {clickedProduct && (
+        <div>
+          <h1>{clickedProduct.name}</h1>
+          <img src={clickedProduct.image} alt={clickedProduct.name} />
+          <p>{clickedProduct.description}</p>
+          <p><strong>Price:</strong> {clickedProduct.price}€</p>
         </div>
       )}
     </div>
